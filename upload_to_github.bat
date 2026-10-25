@@ -1,6 +1,8 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 cd /d "%~dp0"
+
+title SELENE - GitHub 1-Click Upload
 
 echo ========================================================
 echo        SELENE - Upload to GitHub in 1-Click
@@ -10,23 +12,23 @@ echo.
 :: Check if git is installed
 where git >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo [ERROR] Git is not installed or not in PATH!
+    echo [ERROR] Git is not installed or not found in PATH!
     echo Please install Git from https://git-scm.com/
+    echo.
     pause
     exit /b 1
 )
 
-:: Initialize git if not already initialized
+:: Ensure git repository is initialized
 if not exist ".git" (
-    echo [1/5] Initializing Git repository...
+    echo [1/4] Initializing Git repository...
     git init
     git branch -M main
 ) else (
-    echo [1/5] Git repository already initialized.
+    echo [1/4] Git repository verified.
 )
 
-:: Set remote origin
-echo [2/5] Setting remote repository URL...
+:: Ensure remote origin is set
 git remote get-url origin >nul 2>nul
 if %ERRORLEVEL% equ 0 (
     git remote set-url origin https://github.com/arshadali85579-star/-SELENE-.git
@@ -34,33 +36,48 @@ if %ERRORLEVEL% equ 0 (
     git remote add origin https://github.com/arshadali85579-star/-SELENE-.git
 )
 
-:: Add all files
-echo [3/5] Adding files to commit...
-git add .
+:: Show current status
+echo.
+echo Checking changed files...
+git status -s
+echo.
+
+:: Add all changes
+echo [2/4] Staging all files...
+git add -A
+
+:: Ask for commit message (optional)
+set "commit_msg="
+set /p commit_msg="Enter commit message (Press ENTER for default: 'Update SELENE website'): "
+
+if "%commit_msg%"=="" (
+    set "commit_msg=Update SELENE website - %date% %time%"
+)
 
 :: Commit
-echo [4/5] Creating commit...
-git commit -m "Deploy SELENE website" 2>nul
-if %ERRORLEVEL% equ 0 (
-    echo Commit created successfully.
-) else (
-    echo No new changes to commit or commit already up to date.
+echo.
+echo [3/4] Creating commit...
+git commit -m "%commit_msg%"
+if %ERRORLEVEL% neq 0 (
+    echo [INFO] No new changes to commit.
 )
 
 :: Push to GitHub
-echo [5/5] Pushing files to GitHub (main branch)...
+echo.
+echo [4/4] Pushing to GitHub (main branch)...
 git push -u origin main
 
 if %ERRORLEVEL% equ 0 (
     echo.
     echo ========================================================
-    echo  SUCCESS! Code uploaded to GitHub successfully!
+    echo  [SUCCESS] Code uploaded to GitHub successfully!
     echo  Repo: https://github.com/arshadali85579-star/-SELENE-
     echo ========================================================
 ) else (
     echo.
     echo ========================================================
-    echo  [NOTICE] If push failed, check your GitHub login/credentials.
+    echo  [NOTICE] Push failed or authentication needed.
+    echo  Please check your internet or GitHub login credentials.
     echo ========================================================
 )
 
