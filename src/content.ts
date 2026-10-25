@@ -17,7 +17,7 @@ export const nav = [
 ];
 
 export const hero = {
-  title: 'EARTHRISE',
+  title: 'webdev_Arshad',
   kicker: 'A concept for lunar expeditions',
   site: 'Mare Tranquillitatis · 0.67°N 23.47°E',
 };
